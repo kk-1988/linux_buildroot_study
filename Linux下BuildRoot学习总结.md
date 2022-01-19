@@ -184,3 +184,68 @@
 > 
 > 
 > 
+
+## 为什么需要busybox
+> Linux需要一组基本的程序才能工作
+* 一个init程序
+* 一个shell
+* 用于文件操作和系统配置的各种基本实用程序
+> 在普通的GNU/Linux系统中，这些程序由不同的项目组成
+* coreutils，bash，grep，sed，tar，wget，modutils等都是不同的项目
+* 许多不同的组件要集成
+* 设计时未考虑到嵌入式系统限制的组件：它们的可配置性不强但具有广泛的光能
+> Busybox是一种替代解决方案，在嵌入式系统中极为常见
+
+## Busybox 介绍
+> 重写了很多有用的UNIX命令行实用程序
+> busybox被誉为嵌入式的瑞士军刀
+> 许可证是GNU GPLv2
+> busybox的替代品：Toybox，BSD许可
+
+## Busybox在根文件系统
+![busybox rootfs](./busybox_rootfs.png)  
+
+## 如何使用rootfs
+* mount 和 umount是基于文件系统的
+* 第一个文件系统需要通过root = 内核选项进行设置
+* 如果没有可用的根文件系统，会kernel panic  
+
+## 根文件系统存放的位置
+> 可从不同位置挂载
+* 从硬盘分区
+* 从U盘分区
+* 从SD卡分区
+* 从NAND闪存芯片或类似类型的存储设备的分区
+* 从网络，使用NFS协议
+* 从闪存中，使用预加载的文件系统(通过引导加载程序)
+* 等等
+> 系统设计者可以为系统选择配置，并使用root=配置内核行动  
+
+
+## 从存储设备挂载rootfs
+> 硬盘或者U盘设备的分区  
+* root=/dev/sdXY,X表示设备的字母，Y是表示分区的数字
+* /dev/sdb2是第二个磁盘驱动器(USB key 或 ATA硬盘驱动器)的第二个分区
+> SD卡设备的分区
+* root=/dev/mmcblkXpY, X表示设备的数字，Y是表示分区的数字
+* /dev/mmcblk0p2是第一个设备的第二个分区
+> 闪存设备的分区
+* root=/dev/mtdblockX,其中X是分区号
+* /dev/mtdblock3 是系统列举的第四个flash分区(可以由多个flash芯片)
+
+## NFS挂载rootfs
+* 无需重新启动即可轻松更新根文件系统上的文件
+* 即使您不支持内部或外部存储，也可以拥有一个很大的根文件系统
+* 根文件系统可能很大
+
+## 在内存中运行根文件系统 initramfs
+> 可以使用内存中的文件系统来引导系统：initramfs
+> 来自集成到内核映像中的压缩CPIO镜像
+> 从Boot-loader加载到内存中
+> 在启动时，此存档被提取到Linux文件缓存中
+> 在两种情况下很有用：
+* 快速启动很小的根文件系统。 
+* 作为切换到真正根文件系统之前的中间步骤，位于需要不属于内核印象的驱动程序(存储驱动程序、文件系统驱动程序、网络驱动程序)的设备上。
+> 参考(在内核文档中:filesystem/ramfs-rootfs-initramfs
+
+## Kernel内部使用initramfs
