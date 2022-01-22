@@ -249,3 +249,7 @@
 > 参考(在内核文档中:filesystem/ramfs-rootfs-initramfs
 
 ## Kernel内部使用initramfs
+> 
+> 
+> 
+> 
